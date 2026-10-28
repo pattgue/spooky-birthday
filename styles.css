@@ -1,125 +1,110 @@
-/* V3: las capas del sobre ahora envuelven realmente a la tarjeta.
-   Diseño deliberadamente neutro; Figma definirá la estética final. */
+/* V4: sobre y postal con geometría física, estilo provisional según referencia. */
 :root {
-  --background: #f7f7f6;
-  --paper: #fff;
-  --envelope-back: #e4e4e1;
-  --envelope-front: #eeeeeb;
-  --envelope-flap: #d9d9d6;
-  --card-ratio: 1.5;
-  --ease-natural: cubic-bezier(.22, .70, .18, 1);
+  --background:#1d232c;
+  --envelope:#c86b00;
+  --envelope-edge:#b26100;
+  --env-width:228px;
+  --env-height:150px;
+  --card-ratio:1.5;
+  --card-small-width:184px;
+  --slot-x:0px;
+  --slot-y:0px;
+  --out-x:0px;
+  --out-y:-160px;
+  --mini-rotation:0deg;
+  --full-rotation:0deg;
+  --ease:cubic-bezier(.22,.7,.2,1);
 }
-* { box-sizing: border-box; }
-html, body { width: 100%; height: 100%; margin: 0; }
-body { background: var(--background); overflow: hidden; }
-button { appearance: none; background: transparent; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-button:focus-visible { outline: 2px solid #888; outline-offset: 6px; }
-.scene { position: relative; isolation: isolate; overflow: hidden; width: 100%; height: 100vh; height: 100dvh; }
-
-/* CAPA 1: dorso del sobre. CAPA 2: postal. CAPA 3: pliegues delanteros.
-   La tarjeta emerge desde detrás de los pliegues, no de la nada. */
+* {box-sizing:border-box;}
+html,body {margin:0;width:100%;height:100%;}
+body {overflow:hidden;background:var(--background);}
+button {border:0;padding:0;background:transparent;appearance:none;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+button:focus-visible {outline:2px solid #e2c397;outline-offset:6px;}
+.scene {width:100%;height:100vh;height:100dvh;position:relative;isolation:isolate;overflow:hidden;}
 .envelope {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 184px; height: 127px;
-  transform: translate(-50%, -50%) scale(1);
-  transition: left 1s var(--ease-natural), top 1s var(--ease-natural), transform 1s var(--ease-natural);
-  perspective: 800px;
+  position:absolute;left:50%;top:50%;width:var(--env-width);height:var(--env-height);
+  transform:translate(-50%,-50%);
+  transition:left 980ms var(--ease),top 980ms var(--ease),transform 980ms var(--ease);
 }
-.envelope--back { z-index: 1; pointer-events: none; }
-.envelope--front { z-index: 5; }
-.envelope__float {
-  position: relative; display: block; width: 100%; height: 100%;
-  animation: float 3.8s ease-in-out infinite;
-}
-.envelope--back .envelope__float { filter: drop-shadow(0 10px 12px rgba(0,0,0,.12)); }
-@keyframes float { 0%,100% {transform:translateY(0)} 50% {transform:translateY(-7px)} }
-.envelope__float > span { display: block; position: absolute; inset: 0; }
-.envelope__back { background: var(--envelope-back); border: 1px solid #d9d9d5; }
-.envelope__left { z-index: 3; background: #e9e9e6; clip-path: polygon(0 0, 52% 52%, 0 100%); }
-.envelope__right { z-index: 3; background: #e7e7e3; clip-path: polygon(100% 0, 48% 52%, 100% 100%); }
-.envelope__bottom { z-index: 4; background: var(--envelope-front); clip-path: polygon(0 100%, 50% 49%, 100% 100%); }
+.envelope--back {z-index:1;pointer-events:none;filter:drop-shadow(0 13px 14px rgba(0,0,0,.27));}
+.envelope--flap {z-index:4;pointer-events:none;}
+/* La solapa abierta queda detrás de la tarjeta; los pliegues siguen delante. */
+.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="shrinking"],[data-state="inserting"]) .envelope--flap {z-index:2;}
+.envelope--front {z-index:5;border-radius:4px;perspective:850px;}
+.envelope__body {width:100%;height:100%;border-radius:4px;background:var(--envelope);border:1px solid var(--envelope-edge);}
+.envelope__pocket {position:absolute;display:block;width:100%;height:100%;inset:0;overflow:visible;border-radius:4px;z-index:3;}
 .envelope__flap {
-  z-index: 5; bottom: auto !important; height: 60%;
-  background: var(--envelope-flap); clip-path: polygon(0 0, 50% 100%, 100% 0);
-  transform-origin: center top;
-  transition: transform .55s cubic-bezier(.37, 0, .20, 1);
+  position:absolute;z-index:5;width:100%;height:62%;top:0;left:0;
+  background:var(--envelope);clip-path:polygon(0 0,50% 100%,100% 0);
+  transform-origin:top center;
+  transition:transform 600ms cubic-bezier(.35,0,.2,1);
+  filter:drop-shadow(0 1px 0 var(--envelope-edge));
 }
-.scene:not([data-state="closed"]):not([data-state="folding"]) .envelope__flap { transform: rotateX(180deg); }
-.scene:not([data-state="closed"]) .envelope__float { animation: none; }
-/* El sobre SOLO se mueve una vez terminada la extracción. */
+.scene:not([data-state="closed"]):not([data-state="folding"]) .envelope__flap {transform:scaleY(-1);}
+.scene[data-state="closed"] .envelope {animation:float 4s ease-in-out infinite;}
+@keyframes float {0%,100% {translate:0 0;} 50% {translate:0 -7px;}}
+/* El sobre se aparta únicamente cuando la tarjeta ha terminado de salir. */
 .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-  left: clamp(65px, 8vw, 110px);
-  top: calc(100% - 50px);
-  transform: translate(-50%, -50%) scale(.34);
+  left:clamp(64px,8vw,105px);top:calc(100% - 50px);
+  transform:translate(-50%,-50%) scale(.34);
 }
-
-/* Esta tarjeta empieza completamente dentro del bolsillo. Al salir mantiene su
-   tamaño miniatura y su orientación: agrandarse es una SEGUNDA animación. */
 .card {
-  position: absolute; z-index: 3; left: 50%; top: 50%;
-  width: min(91vw, calc(85dvh * var(--card-ratio)), 1120px);
-  aspect-ratio: var(--card-ratio);
-  --mini-scale: .15;
-  --inside-y: 5px;
-  --outside-y: -125px;
-  --mini-angle: 0deg;
-  opacity: 0;
-  pointer-events: none;
-  touch-action: manipulation;
-  transform: translate(-50%, -50%) translateY(var(--inside-y)) rotate(var(--mini-angle)) scale(var(--mini-scale));
-  transition: transform .81s var(--ease-natural), opacity .12s linear;
-  perspective: 1400px;
+  position:absolute;z-index:3;left:50%;top:50%;
+  width:var(--card-small-width);aspect-ratio:var(--card-ratio);
+  opacity:1;pointer-events:none;touch-action:manipulation;
+  transform:translate(-50%,-50%) translate(var(--slot-x),var(--slot-y)) rotate(var(--mini-rotation));
+  transition:transform 850ms var(--ease),width 1080ms var(--ease);
+  perspective:1400px;
 }
-.scene:is([data-state="opening"],[data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="retrieving"],[data-state="inserting"],[data-state="folding"]) .card { opacity: 1; }
-.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="retrieving"]) .card {
-  transform: translate(-50%, -50%) translateY(var(--outside-y)) rotate(var(--mini-angle)) scale(var(--mini-scale));
+/* Extracción sin cambio de escala: la tarjeta atraviesa el bolsillo. */
+.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="shrinking"]) .card {
+  transform:translate(-50%,-50%) translate(var(--out-x),var(--out-y)) rotate(var(--mini-rotation));
 }
+/* Ya extraída, pasa al primer plano; empieza entonces a ampliarse. */
 .scene:is([data-state="presenting"],[data-state="opened"]) .card {
-  z-index: 8;
-  transform: translate(-50%, -50%) rotate(0deg) scale(1);
-  transition-duration: 1.08s, .12s;
+  z-index:10;width:min(91vw,calc(85dvh * var(--card-ratio)),1120px);
+  transform:translate(-50%,-50%) rotate(var(--full-rotation));
 }
-.scene[data-state="opened"] .card { pointer-events: auto; }
+.scene[data-state="shrinking"] .card {z-index:10;}
+.scene[data-state="opened"] .card {pointer-events:auto;}
 .card__inner {
-  position: relative; display: block; width: 100%; height: 100%;
-  transform-style: preserve-3d;
-  transition: transform .72s cubic-bezier(.25, .72, .2, 1);
+  display:block;position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform 730ms cubic-bezier(.23,.7,.23,1);
 }
-.card.is-flipped .card__inner { transform: rotateY(180deg); }
+.card.is-flipped .card__inner {transform:rotateY(180deg);}
 .card__face {
-  position: absolute; inset: 0; display: block;
-  backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  background: var(--paper); box-shadow: 0 12px 34px rgba(0,0,0,.13);
+  display:block;position:absolute;inset:0;overflow:hidden;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:white;box-shadow:0 14px 36px rgba(0,0,0,.25);
 }
-.card__face--back { transform: rotateY(180deg); }
-.card__face img { display: block; width: 100%; height: 100%; object-fit: cover; user-select:none; -webkit-user-drag:none; }
-
-/* Retrato móvil: sobre vertical, la postal ocupa la pantalla girada 90°. */
-@media (max-width: 700px) and (orientation: portrait) {
-  .envelope { width: 132px; height: 170px; }
-  .envelope__flap { height: 47%; }
-  .card {
-    --mini-angle: 90deg;
-    width: min(calc((100vw - 22px) * var(--card-ratio)), calc(100dvh - 28px));
+.card__face--back {transform:rotateY(180deg);}
+.card__face img {
+  display:block;width:100%;height:100%;object-fit:cover;
+  user-select:none;-webkit-user-drag:none;
+}
+/* Móvil vertical: sobre vertical con abertura arriba; postal sale y gira 90 grados. */
+@media (max-width:700px) and (orientation:portrait) {
+  :root {--env-width:158px;--env-height:214px;--mini-rotation:0deg;--full-rotation:90deg;}
+  .envelope__flap {height:60%;}
+  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
+    left:50%;top:calc(100% - 42px - env(safe-area-inset-bottom,0px));
+    transform:translate(-50%,-50%) scale(.31);
   }
   .scene:is([data-state="presenting"],[data-state="opened"]) .card {
-    transform: translate(-50%, -50%) rotate(90deg) scale(1);
-  }
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left: 50%;
-    top: calc(100% - 40px - env(safe-area-inset-bottom, 0px));
-    transform: translate(-50%, -50%) scale(.34);
+    width:min(calc((100vw - 20px) * var(--card-ratio)),calc(100dvh - 25px));
   }
 }
-@media (orientation: landscape) and (max-height: 500px) {
-  .card { width: min(93vw, calc(84dvh * var(--card-ratio))); }
+@media (max-height:520px) and (orientation:landscape) {
   .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left: 43px; top: calc(100% - 31px);
-    transform: translate(-50%, -50%) scale(.28);
+    left:43px;top:calc(100% - 29px);
+    transform:translate(-50%,-50%) scale(.27);
+  }
+  .scene:is([data-state="presenting"],[data-state="opened"]) .card {
+    width:min(94vw,calc(87dvh * var(--card-ratio)));
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .envelope,.envelope__flap,.card,.card__inner { transition-duration: .02s !important; }
-  .envelope__float { animation: none; }
+@media (prefers-reduced-motion:reduce) {
+  .envelope,.envelope__flap,.card,.card__inner {transition-duration:20ms !important;}
+  .scene[data-state="closed"] .envelope {animation:none;}
 }

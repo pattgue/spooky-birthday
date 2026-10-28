@@ -10,26 +10,25 @@
 </head>
 <body>
   <main class="scene" id="scene" data-state="closed">
-    <!-- Sobre construido con CSS. Después incorporaremos el diseño de Figma. -->
-    <button class="envelope" id="envelope" type="button" aria-label="Abrir el sobre">
+    <!-- Tres capas independientes para que el papel pueda salir DE DENTRO del sobre. -->
+    <div class="envelope envelope--back" aria-hidden="true">
+      <span class="envelope__float"><span class="envelope__back"></span></span>
+    </div>
+
+    <!-- La tarjeta está entre la parte trasera y los pliegues delanteros. -->
+    <button class="card" id="card" type="button" aria-label="Dar la vuelta a la postal" tabindex="-1" aria-hidden="true">
+      <span class="card__inner">
+        <span class="card__face card__face--front"><img src="./assets/anverso.svg" alt="" draggable="false"></span>
+        <span class="card__face card__face--back"><img src="./assets/reverso.svg" alt="" draggable="false"></span>
+      </span>
+    </button>
+
+    <button class="envelope envelope--front" id="envelope" type="button" aria-label="Abrir el sobre">
       <span class="envelope__float">
-        <span class="envelope__back"></span>
         <span class="envelope__flap"></span>
         <span class="envelope__left"></span>
         <span class="envelope__right"></span>
         <span class="envelope__bottom"></span>
-      </span>
-    </button>
-
-    <!-- Sustituiremos estos dos SVG por las ilustraciones definitivas. -->
-    <button class="card" id="card" type="button" aria-label="Dar la vuelta a la postal" tabindex="-1" aria-hidden="true">
-      <span class="card__inner">
-        <span class="card__face card__face--front">
-          <img src="./assets/anverso.svg" alt="" draggable="false">
-        </span>
-        <span class="card__face card__face--back">
-          <img src="./assets/reverso.svg" alt="" draggable="false">
-        </span>
       </span>
     </button>
   </main>

@@ -1,0 +1,190 @@
+/* Estructura provisional. Toda la dirección de arte se sustituirá con Figma. */
+:root {
+  --background: #f7f7f6;
+  --paper: #fff;
+  --envelope-back: #e4e4e1;
+  --envelope-front: #eeeeeb;
+  --envelope-flap: #d9d9d6;
+  --card-ratio: 1.5; /* Modificar si las ilustraciones no son 3:2 */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; }
+body { overflow: hidden; background: var(--background); }
+button {
+  border: 0;
+  padding: 0;
+  appearance: none;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+button:focus-visible { outline: 2px solid #777; outline-offset: 6px; }
+.scene {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+  perspective: 1600px;
+  isolation: isolate;
+}
+
+/* Sobre pequeño, flotante, sin textos ni controles visibles. */
+.envelope {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  top: 50%;
+  width: 186px;
+  height: 128px;
+  perspective: 650px;
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    left .85s cubic-bezier(.2,.75,.2,1),
+    top .85s cubic-bezier(.2,.75,.2,1),
+    transform .85s cubic-bezier(.2,.75,.2,1);
+}
+.envelope__float {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: float 3.6s ease-in-out infinite;
+  filter: drop-shadow(0 10px 12px rgba(0,0,0,.11));
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.envelope__float > span {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.envelope__back {
+  background: var(--envelope-back);
+  border: 1px solid #d9d9d5;
+}
+.envelope__flap {
+  z-index: 5;
+  height: 60%;
+  bottom: auto !important;
+  background: var(--envelope-flap);
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+  transform-origin: top center;
+  transition: transform .55s ease;
+}
+.envelope__left {
+  z-index: 3;
+  background: #e9e9e6;
+  clip-path: polygon(0 0, 52% 52%, 0 100%);
+}
+.envelope__right {
+  z-index: 3;
+  background: #e7e7e3;
+  clip-path: polygon(100% 0, 48% 52%, 100% 100%);
+}
+.envelope__bottom {
+  z-index: 4;
+  background: var(--envelope-front);
+  clip-path: polygon(0 100%, 50% 49%, 100% 100%);
+}
+.scene:not([data-state="closed"]) .envelope__flap {
+  transform: rotateX(180deg);
+}
+.scene:is([data-state="opened"],[data-state="returning"]) .envelope {
+  left: clamp(66px, 8vw, 112px);
+  top: calc(100% - 52px);
+  transform: translate(-50%, -50%) scale(.34);
+}
+.scene:is([data-state="opened"],[data-state="returning"]) .envelope__float {
+  animation: none;
+}
+
+/* Tarjeta 3D, reversible con un clic. */
+.card {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: min(91vw, calc(85dvh * var(--card-ratio)), 1120px);
+  aspect-ratio: var(--card-ratio);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) translateY(24px) scale(.14);
+  transition:
+    transform .9s cubic-bezier(.2,.75,.2,1),
+    opacity .32s ease;
+  perspective: 1600px;
+  touch-action: manipulation;
+}
+.scene:is([data-state="extracting"],[data-state="returning"]) .card {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateY(-55px) scale(.32);
+}
+.scene[data-state="opened"] .card {
+  z-index: 8;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.card__inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .74s cubic-bezier(.2,.75,.2,1);
+}
+.card.is-flipped .card__inner { transform: rotateY(180deg); }
+.card__face {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--paper);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 13px 38px rgba(0,0,0,.12);
+}
+.card__face--back { transform: rotateY(180deg); }
+.card__face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Móvil vertical: sobre vertical, postal gira 90° al salir.
+   Si se gira físicamente el móvil, deja de aplicarse este estilo. */
+@media (max-width: 700px) and (orientation: portrait) {
+  .envelope { width: 132px; height: 172px; }
+  .envelope__flap { height: 47%; }
+  .scene:is([data-state="opened"],[data-state="returning"]) .envelope {
+    left: 50%;
+    top: calc(100% - 38px - env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, -50%) scale(.33);
+  }
+  .card {
+    width: min(calc((100vw - 20px) * var(--card-ratio)), calc(100dvh - 30px));
+  }
+  .scene[data-state="opened"] .card {
+    transform: translate(-50%, -50%) rotate(90deg) scale(1);
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .card { width: min(94vw, calc(89dvh * var(--card-ratio))); }
+  .scene:is([data-state="opened"],[data-state="returning"]) .envelope {
+    left: 47px;
+    top: calc(100% - 31px);
+    transform: translate(-50%, -50%) scale(.26);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .envelope, .envelope__flap, .card, .card__inner {
+    transition-duration: .06s !important;
+  }
+  .envelope__float { animation: none; }
+}

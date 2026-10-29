@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1d232c">
-  <title>Spooky Birthday · Prueba GSAP</title>
+  <title>Spooky Birthday · Prueba Spooky</title>
   <style>html,body,.scene{background-color:#1d232c!important}</style>
-  <link rel="stylesheet" href="./styles.css?v=3-smooth">
+  <link rel="stylesheet" href="./styles.css?v=4-ambient">
   <script src="../../vendor/gsap.min.js" defer></script>
-  <script src="./script.js?v=3-smooth" defer></script>
+  <script src="./script.js?v=4-ambient" defer></script>
 </head>
 <body>
   <main class="scene" id="scene" data-state="closed">
@@ -40,6 +40,14 @@
           <path d="M0 276 L210 143 L420 276 Z" fill="#c86b00"/>
           <path d="M0 276 L210 143 L420 276" stroke="#a45b05" stroke-opacity=".43" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
+      </svg>
+    </button>
+    <button class="return-button" id="return-envelope" type="button"
+      aria-label="Guardar la postal en el sobre" title="Guardar la postal">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+        stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3.1" y="5.8" width="17.8" height="12.4" rx="2.1"/>
+        <path d="m3.8 7.1 7.05 5.25a1.93 1.93 0 0 0 2.3 0l7.05-5.25"/>
       </svg>
     </button>
   </main>

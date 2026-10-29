@@ -10,6 +10,7 @@ const card=document.getElementById("card");
 const cardInner=document.querySelector(".card__inner");
 const bounce=document.querySelector(".card__bounce");
 const envelope=document.getElementById("envelope");
+const returnButton=document.getElementById("return-envelope");
 const wrappers=gsap.utils.toArray(".envelope");
 const closedFlap=document.querySelector(".flap-closed");
 const openFlap=document.querySelector(".flap-open");
@@ -42,8 +43,9 @@ function build(){
   });
   gsap.set(card,{
     xPercent:-50,yPercent:-50,x:0,y:g.yInside,scale:g.scale,
-    rotation:0,autoAlpha:0,zIndex:20
+    rotation:0,autoAlpha:1,zIndex:20
   });
+  gsap.set(returnButton,{autoAlpha:0,scale:.89,y:7,transformOrigin:"50% 50%"});
   gsap.set(bounce,{scaleX:1,scaleY:1,transformOrigin:"50% 50%"});
   gsap.set(closedFlap,{scaleY:1,autoAlpha:1,transformOrigin:"50% 0%"});
   gsap.set(openFlap,{scaleY:0,autoAlpha:0,transformOrigin:"50% 100%"});
@@ -92,7 +94,8 @@ function build(){
   // This layering matters: the open lid goes behind the postcard;
   // the lower pocket continues to mask the postcard until it exits.
   tl.set(flapWrapper,{zIndex:11},"open-lid+=.69");
-  tl.set(card,{autoAlpha:1},"open-lid+=.69");
+  // The real postcard is present in the pocket from the first rendered frame.
+  // The flap and pocket physically occlude it; never toggle card opacity.
 
   // 2. Extract the actual postcard without changing its size.
   // Slow start, gently accelerating middle, long deceleration at the end.
@@ -138,10 +141,16 @@ function build(){
   },"reveal+=1.19");
 
   // The envelope retreats concurrently rather than waiting for the card.
+  // Hand off the full-size envelope to an independent outlined UI button.
+  // No detached open flap is left behind at miniature scale.
   tl.to(wrappers,{
-    x:g.finalX,y:g.finalY,scale:g.parkScale,
-    duration:1.31,ease:"power3.inOut"
-  },"reveal+=.16");
+    autoAlpha:0,scale:.86,y:10,
+    duration:.62,ease:"power2.inOut"
+  },"reveal+=.35");
+  tl.to(returnButton,{
+    autoAlpha:1,scale:1,y:0,
+    duration:.56,ease:"power2.out"
+  },"reveal+=.83");
   return tl;
 }
 function reset(){
@@ -155,7 +164,7 @@ function reset(){
 }
 reset();
 window.addEventListener("resize",()=>{reset();},{passive:true});
-envelope.addEventListener("click",()=>{
+function toggleEnvelope(){
   if(busy)return;
   if(direction==="closed"){
     allowCard(false);
@@ -169,7 +178,9 @@ envelope.addEventListener("click",()=>{
       gsap.delayedCall(prefersReduced.matches?.01:.72,resume);
     }else resume();
   }
-});
+}
+envelope.addEventListener("click",toggleEnvelope);
+returnButton.addEventListener("click",toggleEnvelope);
 card.addEventListener("click",()=>{
  if(direction==="opened"&&!busy)card.classList.toggle("is-flipped");
 });

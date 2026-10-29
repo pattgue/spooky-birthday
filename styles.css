@@ -139,3 +139,6 @@ button:focus-visible{outline:2px solid #f1c589;outline-offset:5px;}
   .envelope,.card,.card__inner,.flap-closed,.flap-open {transition-duration:20ms!important;}
   .scene[data-state="closed"] .envelope{animation:none;}
 }
+
+/* The visual envelope stays icon-sized, but its touch target remains generous. */
+.scene[data-state="opened"] .envelope--front {overflow:visible;}

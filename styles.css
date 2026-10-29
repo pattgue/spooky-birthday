@@ -1,184 +1,141 @@
-/* V4: sobre y postal con geometría física, estilo provisional según referencia. */
+/* Spooky Birthday V8 — clean, self-contained style sheet.
+   The envelope is drawn from the user's reference; the artwork is provisional. */
 :root {
   --background:#1d232c;
-  --envelope:#c86b00;
-  --envelope-edge:#b26100;
+  --orange:#c86b00;
+  --seam:#a45b05;
   --env-width:228px;
-  --env-height:150px;
+  --env-height:calc(var(--env-width) * 276 / 420);
   --card-ratio:1.5;
-  --card-small-width:184px;
-  --slot-x:0px;
+  --card-small-width:180px;
   --slot-y:0px;
-  --out-x:0px;
-  --out-y:-160px;
-  --mini-rotation:0deg;
+  --out-y:-170px;
   --full-rotation:0deg;
-  --ease:cubic-bezier(.22,.7,.2,1);
+  --ease:cubic-bezier(.22,.82,.23,1);
+  --ease-settle:cubic-bezier(.16,1,.3,1);
 }
 * {box-sizing:border-box;}
-html,body {margin:0;width:100%;height:100%;}
-body {overflow:hidden;background:var(--background);}
-button {border:0;padding:0;background:transparent;appearance:none;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-button:focus-visible {outline:2px solid #e2c397;outline-offset:6px;}
-.scene {width:100%;height:100vh;height:100dvh;position:relative;isolation:isolate;overflow:hidden;}
+html,body {width:100%;height:100%;margin:0;background:var(--background);}
+body {overflow:hidden;}
+button {
+  appearance:none;border:0;padding:0;background:transparent;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:2px solid #f1c589;outline-offset:5px;}
+.scene {
+  position:relative;isolation:isolate;overflow:hidden;
+  width:100%;height:100vh;height:100dvh;background:var(--background);
+}
+/* Separate physical layers: rear paper, opened flap, postcard, front pocket. */
 .envelope {
-  position:absolute;left:50%;top:50%;width:var(--env-width);height:var(--env-height);
-  transform:translate(-50%,-50%);
-  transition:left 980ms var(--ease),top 980ms var(--ease),transform 980ms var(--ease);
+  position:absolute;left:50%;top:50%;
+  width:var(--env-width);height:var(--env-height);
+  transform:translate(-50%,-50%) scale(1);
+  transition:left 1060ms var(--ease-settle),top 1060ms var(--ease-settle),
+             transform 1060ms var(--ease-settle);
 }
-.envelope--back {z-index:1;pointer-events:none;filter:drop-shadow(0 13px 14px rgba(0,0,0,.27));}
-.envelope--flap {z-index:4;pointer-events:none;}
-/* La solapa abierta queda detrás de la tarjeta; los pliegues siguen delante. */
-.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="shrinking"],[data-state="inserting"]) .envelope--flap {z-index:2;}
-.envelope--front {z-index:5;border-radius:4px;perspective:850px;}
-.envelope__body {width:100%;height:100%;border-radius:4px;background:var(--envelope);border:1px solid var(--envelope-edge);}
-.envelope__pocket {position:absolute;display:block;width:100%;height:100%;inset:0;overflow:visible;border-radius:4px;z-index:3;}
-.envelope__flap {
-  position:absolute;z-index:5;width:100%;height:62%;top:0;left:0;
-  background:var(--envelope);clip-path:polygon(0 0,50% 100%,100% 0);
-  transform-origin:top center;
-  transition:transform 600ms cubic-bezier(.35,0,.2,1);
-  filter:drop-shadow(0 1px 0 var(--envelope-edge));
+.envelope--back {
+  z-index:10;pointer-events:none;
+  filter:drop-shadow(0 12px 16px rgba(0,0,0,.22));
 }
-.scene:not([data-state="closed"]):not([data-state="folding"]) .envelope__flap {transform:scaleY(-1);}
-.scene[data-state="closed"] .envelope {animation:float 4s ease-in-out infinite;}
-@keyframes float {0%,100% {translate:0 0;} 50% {translate:0 -7px;}}
-/* El sobre se aparta únicamente cuando la tarjeta ha terminado de salir. */
+.envelope__body {
+  display:block;width:100%;height:100%;
+  background:var(--orange);border-radius:7px;
+}
+.envelope--flap {z-index:50;pointer-events:none;perspective:1000px;}
+.envelope--front {
+  z-index:30;overflow:hidden;border-radius:7px;
+  touch-action:manipulation;
+}
+.envelope__pocket {display:block;width:100%;height:100%;border-radius:7px;}
+/* A large invisible pointer region remains around the miniature envelope. */
+.scene[data-state="opened"] .envelope--front::after {
+  content:"";position:absolute;inset:-60px -86px;
+}
+.flap-closed,.flap-open {
+  display:block;position:absolute;left:0;width:100%;pointer-events:none;
+  transition:transform 630ms cubic-bezier(.2,.88,.25,1),opacity 360ms ease;
+}
+.flap-closed {
+  top:0;height:100%;transform-origin:50% 0;
+  opacity:1;transform:scaleY(1);
+}
+.flap-open {
+  bottom:100%;height:calc(100% * 170 / 276);
+  transform-origin:50% 100%;opacity:0;transform:scaleY(.05);
+}
+.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-closed {
+  opacity:0;transform:scaleY(.04);
+}
+.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-open {
+  opacity:1;transform:scaleY(1);
+}
+/* The lid is BEHIND the moving card, while the pocket always covers its base. */
+.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="shrinking"],[data-state="inserting"]) .envelope--flap {z-index:11;}
+.scene[data-state="closed"] .envelope {animation:float 4.3s ease-in-out infinite;}
+@keyframes float {0%,100% {translate:0 0;}50%{translate:0 -6px;}}
+/* Resting envelope: a deliberate, tiny interactive icon at bottom left. */
 .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-  left:clamp(64px,8vw,105px);top:calc(100% - 50px);
-  transform:translate(-50%,-50%) scale(.34);
+  left:36px;top:calc(100% - 38px);
+  transform:translate(-50%,-50%) scale(.22);
 }
 .card {
-  position:absolute;z-index:3;left:50%;top:50%;
+  position:absolute;left:50%;top:50%;z-index:20;
   width:var(--card-small-width);aspect-ratio:var(--card-ratio);
   opacity:1;pointer-events:none;touch-action:manipulation;
-  transform:translate(-50%,-50%) translate(var(--slot-x),var(--slot-y)) rotate(var(--mini-rotation));
-  transition:transform 850ms var(--ease),width 1080ms var(--ease);
-  perspective:1400px;
+  transform:translate(-50%,-50%) translateY(var(--slot-y));
+  transition:transform 910ms var(--ease),width 1050ms var(--ease-settle);
+  perspective:1300px;
 }
-/* Extracción sin cambio de escala: la tarjeta atraviesa el bolsillo. */
 .scene:is([data-state="extracting"],[data-state="extracted"],[data-state="shrinking"]) .card {
-  transform:translate(-50%,-50%) translate(var(--out-x),var(--out-y)) rotate(var(--mini-rotation));
+  transform:translate(-50%,-50%) translateY(var(--out-y));
 }
-/* Ya extraída, pasa al primer plano; empieza entonces a ampliarse. */
 .scene:is([data-state="presenting"],[data-state="opened"]) .card {
-  z-index:10;width:min(91vw,calc(85dvh * var(--card-ratio)),1120px);
+  z-index:60;width:min(91vw,calc(84dvh * var(--card-ratio)),1120px);
   transform:translate(-50%,-50%) rotate(var(--full-rotation));
 }
-.scene[data-state="shrinking"] .card {z-index:10;}
-.scene[data-state="opened"] .card {pointer-events:auto;}
+.scene[data-state="shrinking"] .card{z-index:60;}
+.scene[data-state="opened"] .card{pointer-events:auto;}
 .card__inner {
   display:block;position:relative;width:100%;height:100%;
   transform-style:preserve-3d;
-  transition:transform 730ms cubic-bezier(.23,.7,.23,1);
+  transition:transform 780ms var(--ease-settle);
 }
-.card.is-flipped .card__inner {transform:rotateY(180deg);}
+.card.is-flipped .card__inner{transform:rotateY(180deg);}
 .card__face {
-  display:block;position:absolute;inset:0;overflow:hidden;
+  position:absolute;inset:0;display:block;overflow:hidden;
+  background:#fff;box-shadow:0 12px 36px rgba(0,0,0,.25);
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  background:white;box-shadow:0 14px 36px rgba(0,0,0,.25);
 }
-.card__face--back {transform:rotateY(180deg);}
-.card__face img {
+.card__face--back{transform:rotateY(180deg);}
+.card__face img{
   display:block;width:100%;height:100%;object-fit:cover;
   user-select:none;-webkit-user-drag:none;
 }
-/* Móvil vertical: sobre vertical con abertura arriba; postal sale y gira 90 grados. */
-@media (max-width:700px) and (orientation:portrait) {
-  :root {--env-width:158px;--env-height:214px;--mini-rotation:0deg;--full-rotation:90deg;}
-  .envelope__flap {height:60%;}
+@media (max-width:700px) and (orientation:portrait){
+  :root {
+    --env-width:174px;
+    --env-height:calc(var(--env-width) * 276 / 420);
+    --full-rotation:90deg;
+  }
   .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left:50%;top:calc(100% - 42px - env(safe-area-inset-bottom,0px));
-    transform:translate(-50%,-50%) scale(.31);
+    left:50%;top:calc(100% - 34px - env(safe-area-inset-bottom,0px));
+    transform:translate(-50%,-50%) scale(.24);
   }
   .scene:is([data-state="presenting"],[data-state="opened"]) .card {
-    width:min(calc((100vw - 20px) * var(--card-ratio)),calc(100dvh - 25px));
+    width:min(calc((100vw - 20px) * var(--card-ratio)),calc(100dvh - 24px));
   }
 }
-@media (max-height:520px) and (orientation:landscape) {
+@media (max-height:520px) and (orientation:landscape){
   .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left:43px;top:calc(100% - 29px);
-    transform:translate(-50%,-50%) scale(.27);
+    left:33px;top:calc(100% - 30px);
+    transform:translate(-50%,-50%) scale(.22);
   }
   .scene:is([data-state="presenting"],[data-state="opened"]) .card {
-    width:min(94vw,calc(87dvh * var(--card-ratio)));
+    width:min(94vw,calc(85dvh * var(--card-ratio)));
   }
 }
-@media (prefers-reduced-motion:reduce) {
-  .envelope,.envelope__flap,.card,.card__inner {transition-duration:20ms !important;}
-  .scene[data-state="closed"] .envelope {animation:none;}
-}
-
-
-/* V5: capas controladas independientemente, solapa siempre detrás al extraer */
-html,body,.scene {background:#1d232c !important}
-.envelope--back {z-index:10}
-.envelope--flap {z-index:50;perspective:1000px}
-.envelope--front {z-index:30}
-.card {z-index:20}
-.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="shrinking"],[data-state="inserting"]) .envelope--flap {z-index:11}
-.scene:not([data-state="closed"]):not([data-state="folding"]) .envelope__flap {transform:rotateX(180deg)}
-.scene:is([data-state="presenting"],[data-state="opened"]) .card {z-index:60}
-.scene[data-state="shrinking"] .card {z-index:60}
-.scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-  left:clamp(39px,3.4vw,46px);
-  top:calc(100% - 41px);
-  transform:translate(-50%,-50%) scale(.34);
-}
-@media(max-width:700px) and (orientation:portrait) {
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left:50%;top:calc(100% - 41px - env(safe-area-inset-bottom,0px));
-    transform:translate(-50%,-50%) scale(.31);
-  }
-}
-
-/* V6 — sobre vectorial basado en la referencia, relación 420:276 constante */
-:root { --env-width:228px; --env-height:calc(var(--env-width) * 276 / 420); }
-.envelope--back,.envelope--front { border-radius:7px; }
-.envelope__body { border-radius:7px; }
-.envelope--front {overflow:hidden;}
-.envelope__pocket {border-radius:7px; }
-.flap-closed,.flap-open {display:block;position:absolute;left:0;width:100%;pointer-events:none;}
-.flap-closed {top:0;height:100%;transform-origin:50% 0;transition:opacity .18s ease,transform .58s ease;opacity:1;transform:scaleY(1);}
-.flap-open {bottom:100%;height:calc(100% * 170 / 276);transform-origin:50% 100%;transition:transform .58s ease,opacity .18s ease;opacity:0;transform:scaleY(.01);overflow:visible;}
-.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-closed {opacity:0;transform:scaleY(.01);}
-.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-open {opacity:1;transform:scaleY(1);}
-@media (max-width:700px) and (orientation:portrait) {
-  :root { --env-width:174px; --env-height:calc(var(--env-width) * 276 / 420); --mini-rotation:0deg; --full-rotation:90deg; }
-}
-@media (prefers-reduced-motion: reduce) {.flap-closed,.flap-open {transition-duration:20ms!important;}}
-
-/* V7 — Seams, easing and parked-envelope adjustments */
-:root { --ease:cubic-bezier(.23,1,.32,1); }
-.envelope {
-  transition:left 1180ms var(--ease),top 1180ms var(--ease),transform 1180ms var(--ease);
-}
-.card {
-  transition:transform 1050ms var(--ease),width 1320ms cubic-bezier(.22,.98,.31,1);
-}
-.card__inner { transition:transform 840ms cubic-bezier(.22,.85,.22,1); }
-.flap-closed,.flap-open { transition-timing-function:cubic-bezier(.2,.9,.22,1); }
-.envelope--back,.envelope--front,.envelope__body,.envelope__pocket {border-radius:7px;}
-.scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-  left:32px;
-  top:calc(100% - 32px);
-  transform:translate(-50%,-50%) scale(.23);
-}
-@media (max-height:520px) and (orientation:landscape) {
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left:30px;top:calc(100% - 27px);
-    transform:translate(-50%,-50%) scale(.21);
-  }
-}
-@media (max-width:700px) and (orientation:portrait) {
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left:50%;
-    top:calc(100% - 33px - env(safe-area-inset-bottom,0px));
-    transform:translate(-50%,-50%) scale(.23);
-  }
-}
-@media (prefers-reduced-motion:reduce) {
-  .envelope,.card,.card__inner,.flap-closed,.flap-open {
-    transition-duration:20ms !important;
-  }
+@media(prefers-reduced-motion:reduce){
+  .envelope,.card,.card__inner,.flap-closed,.flap-open {transition-duration:20ms!important;}
+  .scene[data-state="closed"] .envelope{animation:none;}
 }

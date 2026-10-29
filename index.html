@@ -6,27 +6,37 @@
   <meta name="theme-color" content="#1d232c">
   <title>Spooky Birthday</title>
   <style>html,body,.scene{background-color:#1d232c!important}</style>
-  <link rel="stylesheet" href="./styles.css?v=5">
-  <script src="./script.js?v=5" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=6">
+  <script src="./script.js?v=6" defer></script>
 </head>
 <body>
   <main class="scene" id="scene" data-state="closed">
     <!-- Tres capas reales del sobre: reverso, solapa y pliegues delanteros. -->
     <div class="envelope envelope--back" aria-hidden="true"><div class="envelope__body"></div></div>
-    <div class="envelope envelope--flap" aria-hidden="true"><span class="envelope__flap"></span></div>
+    <div class="envelope envelope--flap" aria-hidden="true"><svg class="flap-closed" viewBox="0 0 420 276" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <path d="M7 0 H413 Q420 0 420 7 L217 165 Q210 170 203 165 L0 7 Q0 0 7 0 Z" fill="#c86b00"/>
+        <path d="M0 7 L203 165 Q210 170 217 165 L420 7" fill="none" stroke="#a45b05" stroke-opacity=".48" stroke-width="1.4"/>
+        <path class="envelope__year" fill="#15100b" fill-rule="evenodd" d="M203,69L196,71L195,76L190,86L190,90L190,87L193,82L196,87L198,87L202,84L205,74Z M202,71L203,73L201,81L199,84L197,84L196,80L198,74Z M181,54L178,55L167,66L168,68L170,68L179,58L180,59L177,74L170,96L171,97L169,102L170,104L174,103L187,85L175,98L175,100L172,102L171,99L178,78L180,66L182,63L181,62L182,61Z M243,53L241,53L236,65L233,79L234,87L239,87L245,82L249,71L248,64L244,64L242,66L238,75L237,74L239,65L244,55Z M246,65L247,66L246,75L242,82L237,85L236,81L238,76L240,74L242,68Z M225,46L222,46L212,59L214,61L222,50L223,51L223,64L213,93L215,96L222,95L227,90L227,89L221,94L218,95L215,94L215,90L220,80L225,64L226,58Z"/>
+      </svg>
+      <svg class="flap-open" viewBox="0 0 420 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <path d="M0 170 L202 6 Q210 -1 218 6 L420 170 Z" fill="#c86b00"/>
+      </svg></div>
     <!-- La postal empieza dentro del bolsillo y sale a su tamaño original. -->
     <button class="card" id="card" type="button" aria-label="Dar la vuelta a la postal" tabindex="-1" aria-hidden="true">
       <span class="card__inner">
-        <span class="card__face"><img src="./assets/anverso.svg?v=5" alt="" draggable="false"></span>
-        <span class="card__face card__face--back"><img src="./assets/reverso.svg?v=5" alt="" draggable="false"></span>
+        <span class="card__face"><img src="./assets/anverso.svg?v=6" alt="" draggable="false"></span>
+        <span class="card__face card__face--back"><img src="./assets/reverso.svg?v=6" alt="" draggable="false"></span>
       </span>
     </button>
     <button class="envelope envelope--front" id="envelope" type="button" aria-label="Abrir el sobre">
-      <svg class="envelope__pocket" aria-hidden="true" viewBox="0 0 420 276" preserveAspectRatio="none">
-        <path d="M 0,0 210,145 0,276 Z" fill="#c36a00" />
-        <path d="M 420,0 210,145 420,276 Z" fill="#c36a00" />
-        <path d="M 0,276 210,139 420,276 Z" fill="#c86b00" />
-        <path d="M 0,0 210,145 420,0 M 0,276 210,139 420,276" fill="none" stroke="#a95c08" stroke-width="1.4" stroke-linejoin="round" />
+      <svg class="envelope__pocket" aria-hidden="true" viewBox="0 0 420 276" preserveAspectRatio="xMidYMid meet">
+        <defs><clipPath id="envelope-clip"><rect width="420" height="276" rx="7" ry="7"/></clipPath></defs>
+        <g clip-path="url(#envelope-clip)">
+          <path d="M0,0 L210,169 L0,276 Z" fill="#c86b00"/>
+          <path d="M420,0 L210,169 L420,276 Z" fill="#c86b00"/>
+          <path d="M0,276 L210,143 L420,276 Z" fill="#c86b00"/>
+          <path d="M0,0 L210,169 L420,0 M0,276 L210,143 L420,276" stroke="#a45b05" stroke-opacity=".47" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
       </svg>
     </button>
   </main>

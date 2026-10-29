@@ -1,144 +1,44 @@
-/* Spooky Birthday V8 — clean, self-contained style sheet.
-   The envelope is drawn from the user's reference; the artwork is provisional. */
-:root {
-  --background:#1d232c;
-  --orange:#c86b00;
-  --seam:#a45b05;
-  --env-width:228px;
-  --env-height:calc(var(--env-width) * 276 / 420);
-  --card-ratio:1.5;
-  --card-small-width:180px;
-  --slot-y:0px;
-  --out-y:-170px;
-  --full-rotation:0deg;
-  --ease:cubic-bezier(.22,.82,.23,1);
-  --ease-settle:cubic-bezier(.16,1,.3,1);
+/* V9: polished independent animations, no dependencies */
+:root{--background:#1d232c;--orange:#c86b00;--env-width:228px;--env-height:calc(var(--env-width)*276/420);--card-ratio:1.5}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;background:var(--background)}
+body{overflow:hidden}
+button{appearance:none;border:0;padding:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid #efbd77;outline-offset:5px}
+.scene{width:100%;height:100vh;height:100dvh;position:relative;isolation:isolate;overflow:hidden;background:var(--background)}
+.envelope{position:absolute;left:50%;top:50%;width:var(--env-width);height:var(--env-height);transform:translate(-50%,-50%)}
+.envelope--back{z-index:10;pointer-events:none;filter:drop-shadow(0 13px 14px rgba(0,0,0,.23))}
+.envelope--flap{z-index:50;pointer-events:none;perspective:1100px}
+.envelope--front{z-index:30;border-radius:7px;overflow:hidden}
+.envelope__body{display:block;width:100%;height:100%;background:var(--orange);border-radius:7px}
+.envelope__pocket{display:block;width:100%;height:100%;border-radius:7px}
+.flap-closed,.flap-open{display:block;position:absolute;left:0;width:100%;pointer-events:none;transition:opacity 400ms ease,transform 690ms cubic-bezier(.18,.82,.22,1)}
+.flap-closed{top:0;height:100%;transform-origin:50% 0;opacity:1;transform:scaleY(1)}
+.flap-open{bottom:100%;height:calc(100%*170/276);transform-origin:50% 100%;opacity:0;transform:scaleY(.025)}
+.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-closed{opacity:0;transform:scaleY(.04)}
+.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-open{opacity:1;transform:scaleY(1)}
+.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="shrinking"],[data-state="inserting"]) .envelope--flap{z-index:11}
+.scene[data-state="closed"] .envelope{animation:float 4.4s ease-in-out infinite}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -6px}}
+.scene:is([data-state="presenting"],[data-state="opened"]) .envelope{left:36px;top:calc(100% - 38px);transform:translate(-50%,-50%) scale(.22)}
+.scene[data-state="opened"] .envelope--front{overflow:visible}
+.scene[data-state="opened"] .envelope--front::after{content:"";position:absolute;inset:-58px -72px}
+.card{position:absolute;z-index:20;left:50%;top:50%;width:min(91vw,calc(84dvh*var(--card-ratio)),1120px);aspect-ratio:var(--card-ratio);pointer-events:none;touch-action:manipulation;perspective:1400px;transform:translate(-50%,-50%) scale(.15)}
+.scene:is([data-state="presenting"],[data-state="opened"],[data-state="shrinking"]) .card{z-index:60}
+.scene[data-state="opened"] .card{pointer-events:auto;animation:card-breathe 6.8s ease-in-out infinite}
+@keyframes card-breathe{0%,100%{translate:0 0}50%{translate:0 -3px}}
+.card__inner{display:block;position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 850ms cubic-bezier(.22,.8,.26,1)}
+.card.is-flipped .card__inner{transform:rotateY(180deg)}
+.card__face{position:absolute;inset:0;display:block;overflow:hidden;background:#fff;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 14px 38px rgba(0,0,0,.27)}
+.card__face--back{transform:rotateY(180deg)}
+.card__face img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
+@media(max-width:700px) and (orientation:portrait){
+:root{--env-width:174px;--env-height:calc(var(--env-width)*276/420)}
+.scene:is([data-state="presenting"],[data-state="opened"]) .envelope{left:50%;top:calc(100% - 34px - env(safe-area-inset-bottom,0px));transform:translate(-50%,-50%) scale(.24)}
+.card{width:min(calc((100vw - 20px)*var(--card-ratio)),calc(100dvh - 24px))}
 }
-* {box-sizing:border-box;}
-html,body {width:100%;height:100%;margin:0;background:var(--background);}
-body {overflow:hidden;}
-button {
-  appearance:none;border:0;padding:0;background:transparent;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
+@media(max-height:520px) and (orientation:landscape){
+.scene:is([data-state="presenting"],[data-state="opened"]) .envelope{left:33px;top:calc(100% - 30px);transform:translate(-50%,-50%) scale(.22)}
+.card{width:min(94vw,calc(85dvh*var(--card-ratio)))}
 }
-button:focus-visible{outline:2px solid #f1c589;outline-offset:5px;}
-.scene {
-  position:relative;isolation:isolate;overflow:hidden;
-  width:100%;height:100vh;height:100dvh;background:var(--background);
-}
-/* Separate physical layers: rear paper, opened flap, postcard, front pocket. */
-.envelope {
-  position:absolute;left:50%;top:50%;
-  width:var(--env-width);height:var(--env-height);
-  transform:translate(-50%,-50%) scale(1);
-  transition:left 1060ms var(--ease-settle),top 1060ms var(--ease-settle),
-             transform 1060ms var(--ease-settle);
-}
-.envelope--back {
-  z-index:10;pointer-events:none;
-  filter:drop-shadow(0 12px 16px rgba(0,0,0,.22));
-}
-.envelope__body {
-  display:block;width:100%;height:100%;
-  background:var(--orange);border-radius:7px;
-}
-.envelope--flap {z-index:50;pointer-events:none;perspective:1000px;}
-.envelope--front {
-  z-index:30;overflow:hidden;border-radius:7px;
-  touch-action:manipulation;
-}
-.envelope__pocket {display:block;width:100%;height:100%;border-radius:7px;}
-/* A large invisible pointer region remains around the miniature envelope. */
-.scene[data-state="opened"] .envelope--front::after {
-  content:"";position:absolute;inset:-60px -86px;
-}
-.flap-closed,.flap-open {
-  display:block;position:absolute;left:0;width:100%;pointer-events:none;
-  transition:transform 630ms cubic-bezier(.2,.88,.25,1),opacity 360ms ease;
-}
-.flap-closed {
-  top:0;height:100%;transform-origin:50% 0;
-  opacity:1;transform:scaleY(1);
-}
-.flap-open {
-  bottom:100%;height:calc(100% * 170 / 276);
-  transform-origin:50% 100%;opacity:0;transform:scaleY(.05);
-}
-.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-closed {
-  opacity:0;transform:scaleY(.04);
-}
-.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-open {
-  opacity:1;transform:scaleY(1);
-}
-/* The lid is BEHIND the moving card, while the pocket always covers its base. */
-.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="shrinking"],[data-state="inserting"]) .envelope--flap {z-index:11;}
-.scene[data-state="closed"] .envelope {animation:float 4.3s ease-in-out infinite;}
-@keyframes float {0%,100% {translate:0 0;}50%{translate:0 -6px;}}
-/* Resting envelope: a deliberate, tiny interactive icon at bottom left. */
-.scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-  left:36px;top:calc(100% - 38px);
-  transform:translate(-50%,-50%) scale(.22);
-}
-.card {
-  position:absolute;left:50%;top:50%;z-index:20;
-  width:var(--card-small-width);aspect-ratio:var(--card-ratio);
-  opacity:1;pointer-events:none;touch-action:manipulation;
-  transform:translate(-50%,-50%) translateY(var(--slot-y));
-  transition:transform 910ms var(--ease),width 1050ms var(--ease-settle);
-  perspective:1300px;
-}
-.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="shrinking"]) .card {
-  transform:translate(-50%,-50%) translateY(var(--out-y));
-}
-.scene:is([data-state="presenting"],[data-state="opened"]) .card {
-  z-index:60;width:min(91vw,calc(84dvh * var(--card-ratio)),1120px);
-  transform:translate(-50%,-50%) rotate(var(--full-rotation));
-}
-.scene[data-state="shrinking"] .card{z-index:60;}
-.scene[data-state="opened"] .card{pointer-events:auto;}
-.card__inner {
-  display:block;position:relative;width:100%;height:100%;
-  transform-style:preserve-3d;
-  transition:transform 780ms var(--ease-settle);
-}
-.card.is-flipped .card__inner{transform:rotateY(180deg);}
-.card__face {
-  position:absolute;inset:0;display:block;overflow:hidden;
-  background:#fff;box-shadow:0 12px 36px rgba(0,0,0,.25);
-  backface-visibility:hidden;-webkit-backface-visibility:hidden;
-}
-.card__face--back{transform:rotateY(180deg);}
-.card__face img{
-  display:block;width:100%;height:100%;object-fit:cover;
-  user-select:none;-webkit-user-drag:none;
-}
-@media (max-width:700px) and (orientation:portrait){
-  :root {
-    --env-width:174px;
-    --env-height:calc(var(--env-width) * 276 / 420);
-    --full-rotation:90deg;
-  }
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left:50%;top:calc(100% - 34px - env(safe-area-inset-bottom,0px));
-    transform:translate(-50%,-50%) scale(.24);
-  }
-  .scene:is([data-state="presenting"],[data-state="opened"]) .card {
-    width:min(calc((100vw - 20px) * var(--card-ratio)),calc(100dvh - 24px));
-  }
-}
-@media (max-height:520px) and (orientation:landscape){
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
-    left:33px;top:calc(100% - 30px);
-    transform:translate(-50%,-50%) scale(.22);
-  }
-  .scene:is([data-state="presenting"],[data-state="opened"]) .card {
-    width:min(94vw,calc(85dvh * var(--card-ratio)));
-  }
-}
-@media(prefers-reduced-motion:reduce){
-  .envelope,.card,.card__inner,.flap-closed,.flap-open {transition-duration:20ms!important;}
-  .scene[data-state="closed"] .envelope{animation:none;}
-}
-
-/* The visual envelope stays icon-sized, but its touch target remains generous. */
-.scene[data-state="opened"] .envelope--front {overflow:visible;}
+@media(prefers-reduced-motion:reduce){.flap-closed,.flap-open,.card__inner{transition-duration:1ms!important}.scene[data-state="closed"] .envelope,.scene[data-state="opened"] .card{animation:none}}

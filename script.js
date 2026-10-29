@@ -183,5 +183,8 @@ function toggleEnvelope(){
 envelope.addEventListener("click",toggleEnvelope);
 returnButton.addEventListener("click",toggleEnvelope);
 card.addEventListener("click",()=>{
- if(direction==="opened"&&!busy)card.classList.toggle("is-flipped");
+  if(direction==="opened"&&!busy){
+    card.classList.toggle("is-flipped");
+    card.classList.add("flip-hint-dismissed");
+  }
 });

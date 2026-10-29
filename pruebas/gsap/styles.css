@@ -153,3 +153,49 @@ html,body{background:#050810}
 @media(prefers-reduced-motion:reduce){
   .magic-glow,.magic-glow::before,.magic-glow::after,.envelope--back .envelope__body{animation:none!important}
 }
+
+
+/* Tiny, non-interactive flip affordance on the outer right edge.
+   It appears only once the postcard settles, and leaves after the first flip. */
+.flip-hint{
+  position:absolute;
+  right:-14px;
+  top:50%;
+  z-index:5;
+  display:grid;
+  place-items:center;
+  width:30px;height:30px;
+  border-radius:999px;
+  border:1px solid rgba(242,171,91,.26);
+  background:rgba(15,20,29,.90);
+  color:rgba(255,206,139,.92);
+  font-family:system-ui,sans-serif;
+  font-weight:400;
+  font-size:21px;
+  line-height:1;
+  box-shadow:0 4px 14px rgba(0,0,0,.22),0 0 12px rgba(240,133,41,.08);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(-50%) scale(.84);
+  transition:opacity .46s ease,transform .56s cubic-bezier(.18,.82,.22,1);
+}
+.flip-hint__symbol{display:block;transform:translateY(-1px)}
+.scene[data-state="opened"] .flip-hint{
+  opacity:.84;
+  transform:translateY(-50%) scale(1);
+}
+.scene[data-state="opened"] .card:hover .flip-hint{opacity:1}
+.card.flip-hint-dismissed .flip-hint,
+.scene[data-state="opened"] .card.flip-hint-dismissed:hover .flip-hint{
+  opacity:0;
+  transform:translateY(-50%) scale(.84);
+}
+@media(max-width:700px) and (orientation:portrait){
+  .flip-hint{right:-10px;width:27px;height:27px;font-size:19px}
+  .flip-hint__symbol{transform:translateY(-1px) rotate(-90deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .flip-hint{transition:none}
+}

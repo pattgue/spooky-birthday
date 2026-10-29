@@ -1,4 +1,5 @@
-/* MIT adaptation: Minimal Envelope Animation by visnuravichandran
+/* V5 ambient artwork update (motion unchanged)
+ * MIT adaptation: Minimal Envelope Animation by visnuravichandran
  * https://codepen.io/visnuravichandran/pen/xxZQrmG
  * Adapted into Spooky Birthday's independent envelope layers and reversible card.
  * GSAP 3.15.0 is vendored locally under the GreenSock Standard License.

@@ -108,3 +108,26 @@ button:focus-visible {outline:2px solid #e2c397;outline-offset:6px;}
   .envelope,.envelope__flap,.card,.card__inner {transition-duration:20ms !important;}
   .scene[data-state="closed"] .envelope {animation:none;}
 }
+
+
+/* V5: capas controladas independientemente, solapa siempre detrás al extraer */
+html,body,.scene {background:#1d232c !important}
+.envelope--back {z-index:10}
+.envelope--flap {z-index:50;perspective:1000px}
+.envelope--front {z-index:30}
+.card {z-index:20}
+.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="shrinking"],[data-state="inserting"]) .envelope--flap {z-index:11}
+.scene:not([data-state="closed"]):not([data-state="folding"]) .envelope__flap {transform:rotateX(180deg)}
+.scene:is([data-state="presenting"],[data-state="opened"]) .card {z-index:60}
+.scene[data-state="shrinking"] .card {z-index:60}
+.scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
+  left:clamp(39px,3.4vw,46px);
+  top:calc(100% - 41px);
+  transform:translate(-50%,-50%) scale(.34);
+}
+@media(max-width:700px) and (orientation:portrait) {
+  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
+    left:50%;top:calc(100% - 41px - env(safe-area-inset-bottom,0px));
+    transform:translate(-50%,-50%) scale(.31);
+  }
+}

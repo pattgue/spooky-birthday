@@ -10,11 +10,12 @@ function calculatePath(){
   const width=envelope.offsetWidth;
   const height=envelope.offsetHeight;
   const ratio=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-ratio'))||1.5;
-  const cardWidth=width*.80;
+  const cardWidth=width*.79;
   const cardHeight=cardWidth/ratio;
   const vertical=matchMedia('(max-width:700px) and (orientation:portrait)').matches;
-  const inside=-height/2+cardHeight/2+height*(vertical?.14:.08);
-  const outside=-height/2-cardHeight/2-12;
+  const inside=-height/2+cardHeight/2+height*.08;
+  // Debe superar también el vértice de la solapa abierta antes de ampliarse.
+  const outside=-height/2-height*.62-cardHeight/2-13;
   scene.style.setProperty('--card-small-width',cardWidth+'px');
   scene.style.setProperty('--slot-x','0px');
   scene.style.setProperty('--slot-y',inside+'px');

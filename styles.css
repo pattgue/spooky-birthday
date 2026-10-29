@@ -1,102 +1,174 @@
-/* Spooky Birthday V11 — original postcard's gentle motion, retained envelope art */
-:root {
-  --background:#1d232c;--orange:#c86b00;--env-w:228px;
-  --env-h:calc(var(--env-w)*276/420);--ratio:1.5;
-  --mini-scale:.22;--inside-y:0px;--outside-y:-210px;--card-angle:0deg;
-}
+/* Prototype only. Original envelope art preserved. */
+:root {--bg:#1d232c;--orange:#c86b00;--envelope-width:228px;--env-ratio:420/276;--postcard-ratio:1.413486}
 *{box-sizing:border-box}
-html,body{width:100%;height:100%;margin:0;background:var(--background)}
+html,body{height:100%;width:100%;margin:0;background:var(--bg)}
 body{overflow:hidden}
-button{appearance:none;background:transparent;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:focus-visible{outline:2px solid #f4c992;outline-offset:6px}
-.scene{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;isolation:isolate;background:var(--background)}
-.envelope{
-  position:absolute;left:50%;top:50%;width:var(--env-w);height:var(--env-h);
-  transform:translate(-50%,-50%) rotate(0deg) scale(1);
-  transition:left .93s cubic-bezier(.2,.9,.22,1),top .93s cubic-bezier(.2,.9,.22,1),transform .93s cubic-bezier(.2,.9,.22,1);
-}
-.envelope--back{z-index:10;pointer-events:none;filter:drop-shadow(0 16px 18px rgba(0,0,0,.22))}
-.envelope--flap{z-index:50;pointer-events:none}
-.envelope--front{z-index:30;overflow:hidden;border-radius:7px}
+button{appearance:none;border:0;padding:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid #f0c388;outline-offset:5px}
+.scene{position:relative;isolation:isolate;overflow:hidden;width:100%;height:100vh;height:100dvh;background:var(--bg)}
+.envelope{position:absolute;left:50%;top:50%;width:var(--envelope-width);aspect-ratio:420/276}
+.envelope--back{z-index:10;pointer-events:none;filter:drop-shadow(0 14px 17px rgba(0,0,0,.24))}
 .envelope__body{display:block;width:100%;height:100%;background:var(--orange);border-radius:7px}
-.envelope__pocket{display:block;width:100%;height:100%;border-radius:7px}
+.envelope--flap{z-index:50;pointer-events:none}
+.envelope--front{z-index:30;border-radius:7px;overflow:hidden}
+.envelope__pocket{display:block;width:100%;height:100%}
 .flap-closed,.flap-open{position:absolute;left:0;display:block;width:100%;pointer-events:none}
-.flap-closed{
-  top:0;height:100%;opacity:1;transform-origin:center top;transform:scaleY(1);
-  transition:opacity .22s ease,transform .63s cubic-bezier(.17,.67,.32,1.05);
-}
-.flap-open{
-  bottom:100%;height:calc(100%*170/276);opacity:0;
-  transform-origin:center bottom;transform:scaleY(.02);
-  transition:opacity .23s ease,transform .63s cubic-bezier(.17,.67,.32,1.05);
-}
-.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-closed{opacity:0;transform:scaleY(.02)}
-.scene:not([data-state="closed"]):not([data-state="folding"]) .flap-open{opacity:1;transform:scaleY(1)}
-.scene:is([data-state="extracting"],[data-state="extracted"],[data-state="presenting"],[data-state="opened"],[data-state="returning"],[data-state="inserting"]) .envelope--flap{z-index:11}
-.scene[data-state="closed"] .envelope{animation:letter-float 3.8s ease-in-out infinite}
-@keyframes letter-float{
-  0%,100%{transform:translate(-50%,-50%) translateY(-2px) rotate(-5deg)}
-  50%{transform:translate(-50%,-50%) translateY(-11px) rotate(-3deg)}
-}
-.scene[data-state="opening"] .envelope{animation:letter-nudge .64s cubic-bezier(.2,.6,.25,1) both}
-@keyframes letter-nudge{
-  0%{transform:translate(-50%,-50%) translateY(-3px) rotate(-5deg) scale(1)}
-  42%{transform:translate(-50%,-50%) translateY(3px) rotate(-4deg) scale(.985)}
-  100%{transform:translate(-50%,-50%) rotate(0deg) scale(1)}
-}
-.scene:is([data-state="presenting"],[data-state="opened"]) .envelope{
-  left:35px;top:calc(100% - 35px);transform:translate(-50%,-50%) scale(.23)
-}
+.flap-closed{top:0;height:100%;transform-origin:50% 0}
+.flap-open{bottom:100%;height:calc(100% * 170 / 276);transform-origin:50% 100%}
+.scene[data-state="closed"] .envelope{animation:idle 4.4s ease-in-out infinite}
+@keyframes idle{0%,100%{translate:0 0}50%{translate:0 -7px}}
 .scene[data-state="opened"] .envelope--front{overflow:visible}
-.scene[data-state="opened"] .envelope--front::after{content:"";position:absolute;inset:-56px -77px}
-.card{
-  position:absolute;left:50%;top:50%;z-index:20;
-  width:min(91vw,calc(85dvh*var(--ratio)),1100px);aspect-ratio:var(--ratio);
-  opacity:0;pointer-events:none;touch-action:manipulation;
-  transform:translate(-50%,-50%) translateY(var(--inside-y)) rotate(0deg) scale(var(--mini-scale));
-  transition:transform .76s cubic-bezier(.27,.74,.27,1),opacity .16s ease;
-  perspective:1400px;
-}
-.scene:not([data-state="closed"]) .card{opacity:1}
-.scene:is([data-state="extracting"],[data-state="extracted"]) .card{
-  transform:translate(-50%,-50%) translateY(var(--outside-y)) rotate(-6deg) scale(var(--mini-scale))
-}
-.scene[data-state="presenting"] .card{z-index:60;animation:card-arrive 1.02s both}
-@keyframes card-arrive{
-  0%{transform:translate(-50%,-50%) translateY(var(--outside-y)) rotate(-6deg) scale(var(--mini-scale));animation-timing-function:cubic-bezier(.2,.9,.22,1)}
-  82%{transform:translate(-50%,-50%) translateY(-6px) rotate(calc(var(--card-angle) + 1deg)) scale(1.018);animation-timing-function:cubic-bezier(.3,.65,.3,1)}
-  100%{transform:translate(-50%,-50%) rotate(var(--card-angle)) scale(1)}
-}
-.scene[data-state="opened"] .card{
-  z-index:60;opacity:1;pointer-events:auto;
-  transform:translate(-50%,-50%) rotate(var(--card-angle)) scale(1)
-}
-.scene[data-state="returning"] .card{z-index:60;animation:card-return .98s both}
-@keyframes card-return{
-  0%{transform:translate(-50%,-50%) rotate(var(--card-angle)) scale(1);animation-timing-function:cubic-bezier(.42,.05,.72,.66)}
-  100%{transform:translate(-50%,-50%) translateY(var(--outside-y)) rotate(-6deg) scale(var(--mini-scale))}
-}
-.scene[data-state="inserting"] .card{
-  z-index:20;transform:translate(-50%,-50%) translateY(var(--inside-y)) rotate(0deg) scale(var(--mini-scale))
-}
-.card__inner{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.2,.75,.16,1)}
+.scene[data-state="opened"] .envelope--front::after{content:"";position:absolute;inset:-50px -70px}
+.card{position:absolute;left:50%;top:50%;z-index:20;width:min(91vw,calc(84dvh * var(--postcard-ratio)),1100px);aspect-ratio:var(--postcard-ratio);pointer-events:none;perspective:1500px;touch-action:manipulation;will-change:transform}
+.scene[data-state="opened"] .card{pointer-events:auto}
+.card__inner{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .72s cubic-bezier(.2,.8,.22,1)}
 .card.is-flipped .card__inner{transform:rotateY(180deg)}
-.card__face{position:absolute;inset:0;display:block;overflow:hidden;background:#fff;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 18px 35px rgba(0,0,0,.26)}
+.card__face{position:absolute;inset:0;display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff;box-shadow:0 13px 34px rgba(0,0,0,.24)}
 .card__face--back{transform:rotateY(180deg)}
-.card__face img{width:100%;height:100%;display:block;object-fit:cover;user-select:none;-webkit-user-drag:none}
+.card__face img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
 @media(max-width:700px) and (orientation:portrait){
-  :root{--env-w:174px;--env-h:calc(var(--env-w)*276/420);--card-angle:90deg}
-  .card{width:min(calc((100vw - 20px)*var(--ratio)),calc(100dvh - 24px))}
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope{
-    left:50%;top:calc(100% - 35px - env(safe-area-inset-bottom,0px));transform:translate(-50%,-50%) scale(.24)
-  }
+:root{--envelope-width:174px}
+.card{width:min(calc((100vw - 20px) * var(--postcard-ratio)),calc(100dvh - 24px))}
 }
-@media(max-height:520px) and (orientation:landscape){
-  .card{width:min(94vw,calc(85dvh*var(--ratio)))}
-  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope{
-    left:33px;top:calc(100% - 30px);transform:translate(-50%,-50%) scale(.22)
-  }
+@media(max-height:520px) and (orientation:landscape){.card{width:min(94vw,calc(85dvh * var(--postcard-ratio)))}}
+@media(prefers-reduced-motion:reduce){.scene[data-state="closed"] .envelope{animation:none}.card__inner{transition-duration:.01s}}
+
+/* Micro-elasticity belongs to a wrapper, independent of the 3D flip. */
+.card__bounce{position:relative;display:block;width:100%;height:100%;transform-origin:center center;will-change:transform}
+.card__face{border-radius:1px}
+
+/* V4: moody vignette and a quiet, warm envelope halo. */
+.scene{
+  background-color:#141a24;
+  background-image:radial-gradient(ellipse 78% 85% at 50% 43%,#29313b 0%,#1b222d 50%,#10141d 83%,#080a11 100%);
+}
+.scene::before,.scene::after{content:"";position:absolute;inset:0;pointer-events:none}
+.scene::before{
+  z-index:0;
+  background:radial-gradient(ellipse 37% 36% at 50% 49%,rgba(193,87,12,.12) 0%,rgba(164,68,12,.035) 48%,transparent 100%);
+  animation:spooky-pulse 8s ease-in-out infinite;
+}
+.scene::after{
+  z-index:1;
+  background:radial-gradient(ellipse 76% 76% at 50% 47%,transparent 38%,rgba(6,8,14,.16) 69%,rgba(3,5,10,.58) 100%);
+}
+@keyframes spooky-pulse{0%,100%{opacity:.69}50%{opacity:1}}
+.envelope--back{
+  filter:drop-shadow(0 12px 16px rgba(0,0,0,.32))
+         drop-shadow(0 0 17px rgba(239,113,21,.32))
+         drop-shadow(0 0 48px rgba(228,93,12,.16));
+}
+.card{visibility:hidden} /* GSAP reveals the already-tucked postcard on its first frame. */
+/* The button is an independent outlined UI icon, not a shrunken physical envelope. */
+.return-button{
+  position:absolute;
+  left:28px;
+  bottom:calc(28px + env(safe-area-inset-bottom,0px));
+  width:46px;height:46px;
+  border:1px solid rgba(240,145,56,.40);
+  border-radius:13px;
+  background:rgba(25,28,36,.82);
+  color:#f39b45;
+  display:grid;place-items:center;
+  z-index:100;
+  opacity:0;visibility:hidden;
+  box-shadow:0 4px 19px rgba(0,0,0,.17),inset 0 0 15px rgba(255,132,28,.045);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:background .25s ease,border-color .25s ease,box-shadow .25s ease;
+}
+.return-button svg{display:block;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.return-button:hover{
+  background:rgba(77,48,31,.85);
+  border-color:rgba(255,163,70,.72);
+  box-shadow:0 0 26px rgba(232,109,19,.16),0 4px 19px rgba(0,0,0,.18);
+}
+.return-button:hover svg{transform:translateY(-1px)}
+.return-button:active svg{transform:scale(.94)}
+.return-button:focus-visible{outline:2px solid #f39b45;outline-offset:4px}
+@media(max-width:700px) and (orientation:portrait){
+  .return-button{left:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:44px;height:44px}
 }
 @media(prefers-reduced-motion:reduce){
-  .envelope,.flap-closed,.flap-open,.card,.card__inner{animation-duration:1ms!important;transition-duration:1ms!important}
+  .scene::before{animation:none}
+  .return-button,.return-button svg{transition:none}
+}
+
+/* V5: warm, candlelit atmosphere inspired by the supplied illustration.
+   No extra controls, external textures, or changes to the existing GSAP motion. */
+.scene{
+  background:#080a0e;
+  background-image:
+    radial-gradient(ellipse 59% 60% at 50% 47%, #33272a 0%, #23252d 36%, #11151e 70%, #05070d 100%);
+}
+.scene::before{
+  content:"";z-index:0;pointer-events:none;position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 45% 52% at 50% 45%,rgba(152,62,18,.16) 0%,rgba(104,39,17,.075) 38%,transparent 77%);
+  opacity:1;animation:ambience-flicker 8.8s ease-in-out infinite;
+}
+.scene::after{
+  content:"";z-index:1;pointer-events:none;position:absolute;inset:0;
+  background-image:
+    radial-gradient(ellipse 74% 69% at 50% 44%,transparent 25%,rgba(3,5,9,.26) 67%,rgba(1,2,6,.78) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch' seed='12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.30'/%3E%3C/svg%3E");
+  background-size:100% 100%,210px 210px;
+  opacity:.83;
+}
+.magic-glow{
+  position:absolute;z-index:0;pointer-events:none;
+  left:50%;top:49%;width:min(80vw,760px);height:min(75vh,620px);
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:
+    radial-gradient(ellipse 41% 37% at 50% 45%,rgba(255,211,120,.34) 0%,rgba(255,152,44,.30) 27%,rgba(235,103,19,.20) 50%,transparent 100%),
+    radial-gradient(ellipse 58% 43% at 51% 49%,rgba(233,73,13,.24) 0%,rgba(175,51,9,.12) 49%,transparent 88%);
+  filter:blur(32px) saturate(1.21);
+  opacity:.85;
+  animation:ember-aura 6.9s ease-in-out infinite alternate;
+  transition:opacity 1.2s ease;
+}
+.magic-glow::before,.magic-glow::after{
+  content:"";position:absolute;inset:12% 19%;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 55%,rgba(255,181,73,.36),rgba(231,81,17,.10) 48%,transparent 73%);
+  filter:blur(24px);animation:ember-drift 7.1s ease-in-out infinite alternate;
+}
+.magic-glow::after{
+  inset:19% 25%;opacity:.60;
+  background:radial-gradient(ellipse at 44% 46%,rgba(255,217,133,.42),rgba(250,121,32,.11) 57%,transparent 79%);
+  animation-duration:9.3s;animation-delay:-3.3s;animation-direction:alternate-reverse;
+}
+@keyframes ember-aura{
+  0%,100%{transform:translate(-50%,-50%) translate(0,3px) scale(1);opacity:.75}
+  32%{transform:translate(-50%,-50%) translate(5px,-4px) scale(1.06,.98);opacity:.94}
+  69%{transform:translate(-50%,-50%) translate(-4px,2px) scale(.98,1.045);opacity:.81}
+}
+@keyframes ember-drift{
+  0%{transform:translate(-7px,5px) rotate(-7deg) scale(.93,1.04)}
+  100%{transform:translate(9px,-13px) rotate(9deg) scale(1.08,.97)}
+}
+@keyframes ambience-flicker{
+  0%,100%{opacity:.90}
+  29%{opacity:.74} 40%{opacity:1} 64%{opacity:.86} 70%{opacity:.97}
+}
+.envelope--back .envelope__body{
+  border-radius:16px;
+  animation:envelope-fire-glow 7.6s ease-in-out infinite;
+}
+.envelope--front{border-radius:16px}
+.flap-closed{clip-path:inset(0 round 16px 16px 0 0)}
+@keyframes envelope-fire-glow{
+  0%,100%{filter:drop-shadow(0 0 8px rgba(255,163,59,.21))}
+  38%{filter:drop-shadow(0 0 16px rgba(255,169,56,.35))}
+  70%{filter:drop-shadow(0 0 12px rgba(255,118,26,.28))}
+}
+.envelope--back{
+  filter:
+    drop-shadow(0 16px 20px rgba(0,0,0,.35))
+    drop-shadow(0 0 20px rgba(255,149,43,.33))
+    drop-shadow(0 0 58px rgba(249,95,13,.19));
+}
+.scene[data-state="opened"] .magic-glow{opacity:.36}
+@media(prefers-reduced-motion:reduce){
+  .scene::before,.magic-glow,.magic-glow::before,.magic-glow::after,.envelope--back .envelope__body{
+    animation:none!important;
+  }
 }

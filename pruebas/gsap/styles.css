@@ -1,5 +1,5 @@
 /* Prototype only. Original envelope art preserved. */
-:root {--bg:#1d232c;--orange:#c86b00;--envelope-width:228px;--env-ratio:420/276;--postcard-ratio:1.5}
+:root {--bg:#1d232c;--orange:#c86b00;--envelope-width:228px;--env-ratio:420/276;--postcard-ratio:1.413486}
 *{box-sizing:border-box}
 html,body{height:100%;width:100%;margin:0;background:var(--bg)}
 body{overflow:hidden}

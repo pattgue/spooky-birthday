@@ -32,3 +32,7 @@ button:focus-visible{outline:2px solid #f0c388;outline-offset:5px}
 }
 @media(max-height:520px) and (orientation:landscape){.card{width:min(94vw,calc(85dvh * var(--postcard-ratio)))}}
 @media(prefers-reduced-motion:reduce){.scene[data-state="closed"] .envelope{animation:none}.card__inner{transition-duration:.01s}}
+
+/* Micro-elasticity belongs to a wrapper, independent of the 3D flip. */
+.card__bounce{position:relative;display:block;width:100%;height:100%;transform-origin:center center;will-change:transform}
+.card__face{border-radius:1px}

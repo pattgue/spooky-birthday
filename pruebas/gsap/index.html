@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#1d232c">
   <title>Spooky Birthday · Prueba GSAP</title>
   <style>html,body,.scene{background-color:#1d232c!important}</style>
-  <link rel="stylesheet" href="./styles.css?v=1">
+  <link rel="stylesheet" href="./styles.css?v=2-spring">
   <script src="../../vendor/gsap.min.js" defer></script>
-  <script src="./script.js?v=1" defer></script>
+  <script src="./script.js?v=2-spring" defer></script>
 </head>
 <body>
   <main class="scene" id="scene" data-state="closed">
@@ -24,10 +24,10 @@
       </svg></div>
     <!-- La postal empieza dentro del bolsillo y sale a su tamaño original. -->
     <button class="card" id="card" type="button" aria-label="Dar la vuelta a la postal" tabindex="-1" aria-hidden="true">
-      <span class="card__inner">
+      <span class="card__bounce"><span class="card__inner">
         <span class="card__face"><img src="../../assets/anverso.svg?v=6" alt="" draggable="false"></span>
         <span class="card__face card__face--back"><img src="../../assets/reverso.svg?v=6" alt="" draggable="false"></span>
-      </span>
+      </span></span>
     </button>
     <button class="envelope envelope--front" id="envelope" type="button" aria-label="Abrir el sobre">
       <svg class="envelope__pocket" aria-hidden="true" viewBox="0 0 420 276" preserveAspectRatio="xMidYMid meet">

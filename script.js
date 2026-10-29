@@ -34,13 +34,13 @@ async function toggleEnvelope(){
   if(scene.dataset.state==='closed'){
     calculatePath();
     scene.dataset.state='opening';
-    await sleep(650);
+    await sleep(710);
     scene.dataset.state='extracting';
-    await sleep(900); // Recorrido completo, manteniendo el tamaño pequeño.
+    await sleep(1080); // Recorrido completo, manteniendo el tamaño pequeño.
     scene.dataset.state='extracted';
-    await sleep(210);
+    await sleep(260);
     scene.dataset.state='presenting';
-    await sleep(1140); // Solo aquí se amplía y se aparta el sobre.
+    await sleep(1350); // Solo aquí se amplía y se aparta el sobre.
     scene.dataset.state='opened';
     envelope.setAttribute('aria-label','Guardar la postal');
     setCardAccessible(true);
@@ -48,14 +48,14 @@ async function toggleEnvelope(){
     setCardAccessible(false);
     if(card.classList.contains('is-flipped')){
       card.classList.remove('is-flipped');
-      await sleep(760);
+      await sleep(860);
     }
     scene.dataset.state='shrinking';
-    await sleep(1170);
+    await sleep(1350);
     scene.dataset.state='inserting';
-    await sleep(920);
+    await sleep(1080);
     scene.dataset.state='folding';
-    await sleep(650);
+    await sleep(730);
     scene.dataset.state='closed';
     envelope.setAttribute('aria-label','Abrir el sobre');
   }

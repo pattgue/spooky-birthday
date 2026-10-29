@@ -147,3 +147,38 @@ html,body,.scene {background:#1d232c !important}
   :root { --env-width:174px; --env-height:calc(var(--env-width) * 276 / 420); --mini-rotation:0deg; --full-rotation:90deg; }
 }
 @media (prefers-reduced-motion: reduce) {.flap-closed,.flap-open {transition-duration:20ms!important;}}
+
+/* V7 — Seams, easing and parked-envelope adjustments */
+:root { --ease:cubic-bezier(.23,1,.32,1); }
+.envelope {
+  transition:left 1180ms var(--ease),top 1180ms var(--ease),transform 1180ms var(--ease);
+}
+.card {
+  transition:transform 1050ms var(--ease),width 1320ms cubic-bezier(.22,.98,.31,1);
+}
+.card__inner { transition:transform 840ms cubic-bezier(.22,.85,.22,1); }
+.flap-closed,.flap-open { transition-timing-function:cubic-bezier(.2,.9,.22,1); }
+.envelope--back,.envelope--front,.envelope__body,.envelope__pocket {border-radius:7px;}
+.scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
+  left:32px;
+  top:calc(100% - 32px);
+  transform:translate(-50%,-50%) scale(.23);
+}
+@media (max-height:520px) and (orientation:landscape) {
+  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
+    left:30px;top:calc(100% - 27px);
+    transform:translate(-50%,-50%) scale(.21);
+  }
+}
+@media (max-width:700px) and (orientation:portrait) {
+  .scene:is([data-state="presenting"],[data-state="opened"]) .envelope {
+    left:50%;
+    top:calc(100% - 33px - env(safe-area-inset-bottom,0px));
+    transform:translate(-50%,-50%) scale(.23);
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .envelope,.card,.card__inner,.flap-closed,.flap-open {
+    transition-duration:20ms !important;
+  }
+}

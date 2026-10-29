@@ -36,8 +36,14 @@ function allowCard(yes){
 }
 function build(){
   const g=geometry();
-  gsap.set(wrappers,{xPercent:-50,yPercent:-50,x:0,y:0,scale:1,scaleX:1,scaleY:1,rotation:0,clearProps:"translate"});
-  gsap.set(card,{xPercent:-50,yPercent:-50,x:0,y:g.yInside,scale:g.scale,rotation:0,autoAlpha:0,zIndex:20});
+  gsap.set(wrappers,{
+    xPercent:-50,yPercent:-50,x:0,y:0,scale:1,scaleX:1,scaleY:1,
+    rotation:0,clearProps:"translate"
+  });
+  gsap.set(card,{
+    xPercent:-50,yPercent:-50,x:0,y:g.yInside,scale:g.scale,
+    rotation:0,autoAlpha:0,zIndex:20
+  });
   gsap.set(bounce,{scaleX:1,scaleY:1,transformOrigin:"50% 50%"});
   gsap.set(closedFlap,{scaleY:1,autoAlpha:1,transformOrigin:"50% 0%"});
   gsap.set(openFlap,{scaleY:0,autoAlpha:0,transformOrigin:"50% 100%"});
@@ -45,47 +51,97 @@ function build(){
   const tl=gsap.timeline({
     paused:true,
     defaults:{overwrite:"auto"},
-    onStart(){scene.dataset.state="opening";busy=true;},
-    onComplete(){scene.dataset.state="opened";direction="opened";busy=false;allowCard(true);envelope.setAttribute("aria-label","Guardar la postal");},
-    onReverseComplete(){scene.dataset.state="closed";direction="closed";busy=false;allowCard(false);envelope.setAttribute("aria-label","Abrir el sobre");}
+    onStart(){
+      scene.dataset.state="opening";
+      busy=true;
+    },
+    onComplete(){
+      scene.dataset.state="opened";
+      direction="opened";
+      busy=false;
+      allowCard(true);
+      envelope.setAttribute("aria-label","Guardar la postal");
+    },
+    onReverseComplete(){
+      scene.dataset.state="closed";
+      direction="closed";
+      busy=false;
+      allowCard(false);
+      envelope.setAttribute("aria-label","Abrir el sobre");
+    }
   });
 
-  // 1. Anticipation: brief compression before the flap opens.
-  tl.addLabel("anticipation",0);
-  tl.to(wrappers,{y:4,scaleX:1.04,scaleY:.96,duration:.16,ease:"power2.in"},"anticipation");
-  tl.to(wrappers,{y:0,scaleX:1,scaleY:1,duration:.30,ease:"back.out(1.45)"},"anticipation+=.16");
+  // 1. A very restrained anticipation, then a deliberate opening.
+  tl.addLabel("prepare",0);
+  tl.to(wrappers,{
+    y:3,scaleX:1.015,scaleY:.985,
+    duration:.24,ease:"sine.inOut"
+  },"prepare");
+  tl.to(wrappers,{
+    y:0,scaleX:1,scaleY:1,
+    duration:.38,ease:"power2.out"
+  },"prepare+=.24");
 
-  // 2. Open the lid and move it behind the letter.
-  tl.addLabel("flap",.19);
-  tl.to(closedFlap,{scaleY:0,autoAlpha:0,duration:.31,ease:"power2.in"},"flap");
-  tl.to(openFlap,{scaleY:1,autoAlpha:1,duration:.52,ease:"back.out(1.55)"},"flap+=.08");
-  tl.set(flapWrapper,{zIndex:11},"flap+=.48");
-  tl.set(card,{autoAlpha:1},"flap+=.48");
+  tl.addLabel("open-lid",.29);
+  tl.to(closedFlap,{
+    scaleY:0,autoAlpha:0,duration:.46,ease:"sine.inOut"
+  },"open-lid");
+  tl.to(openFlap,{
+    scaleY:1,autoAlpha:1,duration:.71,ease:"power2.out"
+  },"open-lid+=.08");
+  // This layering matters: the open lid goes behind the postcard;
+  // the lower pocket continues to mask the postcard until it exits.
+  tl.set(flapWrapper,{zIndex:11},"open-lid+=.69");
+  tl.set(card,{autoAlpha:1},"open-lid+=.69");
 
-  // 3. Pull the card completely outside, at a constant size.
-  tl.addLabel("extract","flap+=.53");
-  tl.to(card,{y:g.yOutside,rotation:-3,duration:.64,ease:"back.out(1.32)"},"extract");
-  tl.to(bounce,{scaleX:.97,scaleY:1.035,duration:.16,ease:"power2.out"},"extract+=.10");
-  tl.to(bounce,{scaleX:1,scaleY:1,duration:.30,ease:"back.out(1.5)"},"extract+=.26");
-  tl.set(card,{zIndex:60},"extract+=.64");
+  // 2. Extract the actual postcard without changing its size.
+  // Slow start, gently accelerating middle, long deceleration at the end.
+  tl.addLabel("extract","open-lid+=.73");
+  tl.to(card,{
+    y:g.yOutside,rotation:-1.5,
+    duration:1.08,ease:"power2.inOut"
+  },"extract");
+  tl.to(bounce,{
+    scaleX:.992,scaleY:1.008,duration:.30,ease:"sine.out"
+  },"extract+=.19");
+  tl.to(bounce,{
+    scaleX:1,scaleY:1,duration:.49,ease:"sine.inOut"
+  },"extract+=.49");
 
-  // 4. UI-style pop: position and scale have DIFFERENT easing curves.
-  //    The card launches smoothly, then its size springs into place.
-  tl.addLabel("pop","extract+=.65");
-  tl.to(card,{y:0,duration:.78,ease:"power3.out"},"pop");
-  tl.to(card,{scale:1,duration:1.08,ease:"elastic.out(1,.62)"},"pop");
-  tl.to(card,{rotation:g.rotate,duration:.81,ease:"power3.out"},"pop");
+  // 3. ONLY after leaving the pocket: smooth enlargement with a tiny settle.
+  // No repeated elastic oscillations. The softness comes from timing,
+  // controlled overshoot (~1.5%) and a quiet final correction.
+  tl.set(card,{zIndex:60},"extract+=1.08");
+  tl.addLabel("reveal","extract+=1.10");
+  tl.to(card,{
+    y:-8,duration:1.19,ease:"power3.out"
+  },"reveal");
+  tl.to(card,{
+    y:0,duration:.36,ease:"sine.out"
+  },"reveal+=1.19");
+  tl.to(card,{
+    scale:1.015,duration:1.16,ease:"power3.out"
+  },"reveal");
+  tl.to(card,{
+    scale:1,duration:.39,ease:"sine.out"
+  },"reveal+=1.16");
+  tl.to(card,{
+    rotation:g.rotate,duration:1.32,ease:"power2.inOut"
+  },"reveal");
 
-  // A little squash/stretch on arrival, separate from the flip transform.
-  tl.to(bounce,{scaleX:1.045,scaleY:.965,duration:.14,ease:"power2.out"},"pop+=.42");
-  tl.to(bounce,{scaleX:.988,scaleY:1.015,duration:.17,ease:"power2.inOut"},"pop+=.56");
-  tl.to(bounce,{scaleX:1,scaleY:1,duration:.32,ease:"power3.out"},"pop+=.73");
+  // Subtle animated-paper response, not a rubber-card distortion.
+  tl.to(bounce,{
+    scaleX:1.01,scaleY:.993,duration:.20,ease:"sine.out"
+  },"reveal+=.99");
+  tl.to(bounce,{
+    scaleX:1,scaleY:1,duration:.42,ease:"sine.out"
+  },"reveal+=1.19");
 
-  // Park the envelope simultaneously; it never interrupts the card's pop.
+  // The envelope retreats concurrently rather than waiting for the card.
   tl.to(wrappers,{
     x:g.finalX,y:g.finalY,scale:g.parkScale,
-    duration:.87,ease:"power3.inOut"
-  },"pop+=.10");
+    duration:1.31,ease:"power3.inOut"
+  },"reveal+=.16");
   return tl;
 }
 function reset(){
